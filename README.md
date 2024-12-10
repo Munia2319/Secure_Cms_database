@@ -100,3 +100,27 @@
 ---
 
 This design ensures a structured, secure, and role-based content management system with clear rules for access and visibility. The use of encryption enhances security while maintaining user-specific access.
+
+
+# Procedure: `get_user_data`
+
+This procedure retrieves user data from the `users` table, including a decrypted version of the user's password. The `AES_DECRYPT` function is used to decrypt the stored password hash using a predefined encryption key.
+
+## SQL Procedure Definition
+
+```sql
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_user_data`()
+BEGIN
+    SELECT
+        UserID,
+        Role,
+        Name,
+        Email,
+        CAST(AES_DECRYPT(PasswordHash, 'encryption_key') AS CHAR) AS DecryptedPassword
+    FROM users
+    WHERE Email = USER();
+END$$
+
+DELIMITER ;
