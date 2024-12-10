@@ -124,3 +124,106 @@ BEGIN
 END$$
 
 DELIMITER ;
+```
+## How to Call the Procedure
+
+### Syntax:
+```sql
+CALL get_user_data();
+```
+# Procedure: `GetAvailableCourses`
+
+This procedure retrieves all available courses from the `courses` table.
+
+---
+
+## SQL Procedure Definition
+
+```sql
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetAvailableCourses`()
+BEGIN
+    SELECT * FROM courses;
+END$$
+
+DELIMITER ;
+```
+## How to Call the Procedure
+
+### Syntax:
+```sql
+CALL GetAvailableCourses();
+```
+# Procedure: `enroll_in_course`
+
+This procedure allows a student to enroll in a course by providing either the course ID or course name. The procedure checks the student's eligibility and ensures the course exists before enrolling.
+
+---
+
+## SQL Procedure Definition
+
+```sql
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `enroll_in_course`(IN course_identifier VARCHAR(255))
+BEGIN
+    DECLARE current_user_id INT;
+    DECLARE current_user_role VARCHAR(20);
+    DECLARE course_id INT;
+    DECLARE course_exists BOOLEAN;
+
+    -- Fetch current user details
+    SELECT UserID, Role INTO current_user_id, current_user_role
+    FROM users
+    WHERE Email = USER();
+
+    -- Determine course ID from the input (CourseID or CourseName)
+    IF course_identifier REGEXP '^[0-9]+$' THEN
+        SET course_id = CAST(course_identifier AS UNSIGNED);
+    ELSE
+        SELECT CourseID INTO course_id
+        FROM courses
+        WHERE CourseName = course_identifier;
+    END IF;
+
+    -- Check if the course exists
+    SELECT COUNT(*) > 0 INTO course_exists
+    FROM courses
+    WHERE CourseID = course_id;
+
+    -- Verify if the user is a student and proceed with enrollment
+    IF current_user_id IS NOT NULL AND current_user_role = 'Student' THEN
+        IF course_exists THEN
+            IF NOT EXISTS (
+                SELECT 1
+                FROM enrollment
+                WHERE StudentID = current_user_id AND CourseID = course_id
+            ) THEN
+                INSERT INTO enrollment (StudentID, CourseID)
+                VALUES (current_user_id, course_id);
+
+                SELECT 'Enrollment successful.' AS Message;
+            ELSE
+                SELECT 'You are already enrolled in this course.' AS ErrorMessage;
+            END IF;
+        ELSE
+            SELECT 'Enrollment failed: The specified course does not exist.' AS ErrorMessage;
+        END IF;
+    ELSE
+        SELECT 'Enrollment failed: You must be a student to enroll in a course.' AS ErrorMessage;
+    END IF;
+END$$
+
+DELIMITER ;
+```
+## How to Call the Procedure
+
+### Syntax:
+```sql
+CALL enroll_in_course('1');
+CALL enroll_in_course('Database Security');
+
+```
+
+
