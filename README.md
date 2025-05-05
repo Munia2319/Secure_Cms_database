@@ -1,5 +1,24 @@
 # Secure_Cms_database
+# University Course Management Database Schema
 
+This project presents a secure and structured relational database schema for managing university-level academic activities. It supports various user roles (students, professors, secretaries, and IT administrators), enables enrollment and grading, manages assignments and exams, and enforces strict role-based access control with encryption for sensitive data.
+
+---
+## Project Contributions
+
+- Selected and configured an appropriate **relational DBMS (MySQL)** to build the system.
+- Designed a normalized **relational schema** using primary and foreign keys while ensuring compliance with ACID principles for transaction reliability.
+- Implemented **Role-Based Access Control (RBAC)** to assign permissions to defined roles (student, professor, secretary, admin) and developed **12 stored procedures** to enforce access logic (e.g., enrollment, grade viewing, assignment submission).
+- Applied **column-level encryption** using **AES (SHA256)** for content and **RSA** for encryption keys to protect sensitive fields such as passwords, exam files, submission files, and grades.
+- Configured **automatic decryption mechanisms** to allow students to access their grades securely, only when permitted.
+- Conducted a **risk assessment** for RBAC, identifying key threats including privilege escalation, role abuse, misconfiguration, and inadequate separation of duties.
+- Set up a **three-tier backup and recovery plan**, consisting of:
+  - **Tier 1**: Local backups using `mysqldump`
+  - **Tier 2**: Remote/cloud backups
+  - **Tier 3**: Offline backups stored in SSD
+- Simulated a **real-world environment** by defining and testing access control for users with varying privileges.
+
+---
 # Database Schema and Relationships
 
 ## Table Relationships and Interactions
@@ -836,7 +855,19 @@ DELIMITER ;
 CALL view_grades_with_students();
 ```
 
+## Backup and Recovery
 
+A full-backup strategy is used to protect the database:
+
+- **Tier 1 – Local Backup**: Using `mysqldump` to generate daily SQL files.
+- **Tier 2 – Remote Backup**: Cloud-based backups for offsite protection.
+- **Tier 3 – Offline Backup**: Stored in physical SSD devices for disaster recovery.
+
+This strategy is suited for smaller academic systems where storage and time constraints are minimal.
+
+---
+
+This system provides a robust and secure academic platform with tightly enforced access rules, encryption of sensitive information, and real-world implementation of multi-role user scenarios.
 
 
 
